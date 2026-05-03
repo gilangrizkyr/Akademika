@@ -16,7 +16,7 @@
 </section>
 
 <!-- Stats Section -->
-<section style="padding: 6rem 0;">
+<section class="section-py">
     <div class="container">
         <div class="row g-4 text-center">
             <div class="col-6 col-md-3">
@@ -52,12 +52,12 @@
 </section>
 
 <!-- Latest Research -->
-<section style="padding: 6rem 0;">
+<section class="section-py bg-alt">
     <div class="container">
         <div class="d-flex justify-content-between align-items-end mb-5">
             <div>
                 <h2 class="fw-bold h1" style="font-family: 'Outfit', sans-serif;">Penelitian Terbaru</h2>
-                <p class="text-muted">Update terbaru dari para peneliti kami.</p>
+                <p class="text-muted mb-0">Update terbaru dari para peneliti kami.</p>
             </div>
             <a href="<?= base_url('search') ?>" class="btn btn-link text-decoration-none fw-bold">Lihat Semua <i class="fa-solid fa-arrow-right ms-2"></i></a>
         </div>
@@ -103,7 +103,7 @@
 </section>
 
 <!-- Popular Section -->
-<section style="padding: 7rem 0;" class="bg-alt">
+<section class="section-py">
     <div class="container">
         <div class="row align-items-center mb-5">
             <div class="col-md-6">

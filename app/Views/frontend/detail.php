@@ -48,7 +48,7 @@
 </section>
 
 <!-- Content Detail -->
-<section class="py-6">
+<section class="section-py">
     <div class="container">
         <div class="row g-5">
             <div class="col-lg-8">
