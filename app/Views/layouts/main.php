@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="<?= base_url('css/style.css') ?>">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="X-CSRF-TOKEN" content="<?= csrf_hash() ?>">
+    <meta name="base-url" content="<?= base_url() ?>">
 </head>
 <body>
 
@@ -21,7 +23,7 @@
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="<?= base_url() ?>" style="font-family: 'Outfit', sans-serif; font-size: 1.5rem;">
-                <span class="text-primary">Akade</span>mika
+                <span class="text-primary"><?= esc(get_setting('site_name', 'Akademika')) ?></span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -48,7 +50,7 @@
                         </div>
                     <?php else: ?>
                         <a href="<?= base_url('login') ?>" class="btn btn-outline-primary rounded-pill px-4">Login</a>
-                        <a href="<?= base_url('login') ?>" class="btn btn-primary rounded-pill px-4">Mulai Meneliti</a>
+                        <a href="<?= base_url('register') ?>" class="btn btn-primary rounded-pill px-4">Mulai Meneliti</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -65,8 +67,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4">
-                    <h5 class="fw-bold mb-3">Akademika</h5>
-                    <p class="text-muted">Platform portal penelitian dan edukasi ilmiah modern untuk mempublikasikan karya terbaik Anda.</p>
+                    <h5 class="fw-bold mb-3"><?= esc(get_setting('site_name', 'Akademika')) ?></h5>
+                    <p class="text-muted"><?= esc(get_setting('site_description')) ?></p>
                 </div>
                 <div class="col-md-2 mb-4">
                     <h6 class="fw-bold mb-3">Navigasi</h6>
@@ -78,8 +80,8 @@
                 <div class="col-md-3 mb-4">
                     <h6 class="fw-bold mb-3">Kontak</h6>
                     <ul class="list-unstyled text-muted">
-                        <li>info@akademika.id</li>
-                        <li>+62 812-3456-7890</li>
+                        <li><?= esc(get_setting('contact_email')) ?></li>
+                        <li><?= esc(get_setting('contact_phone')) ?></li>
                     </ul>
                 </div>
                 <div class="col-md-3 mb-4 text-md-end">
@@ -93,38 +95,13 @@
             </div>
             <hr class="my-4 opacity-10">
             <div class="text-center text-muted small">
-                &copy; <?= date('Y') ?> Akademika Portal. All rights reserved.
+                &copy; <?= date('Y') ?> <?= esc(get_setting('footer_copyright')) ?>
             </div>
         </div>
     </footer>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Theme Toggle Logic
-        const themeToggle = document.getElementById('themeToggle');
-        const html = document.documentElement;
-        const icon = themeToggle.querySelector('i');
-
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        html.setAttribute('data-bs-theme', savedTheme);
-        updateIcon(savedTheme);
-
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-bs-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            html.setAttribute('data-bs-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateIcon(newTheme);
-        });
-
-        function updateIcon(theme) {
-            if (theme === 'dark') {
-                icon.classList.replace('fa-moon', 'fa-sun');
-            } else {
-                icon.classList.replace('fa-sun', 'fa-moon');
-            }
-        }
-    </script>
+    <script src="<?= base_url('js/app.js') ?>"></script>
 </body>
 </html>

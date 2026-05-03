@@ -4,7 +4,7 @@
 
 <div class="mb-5">
     <h2 class="fw-bold" style="font-family: 'Outfit', sans-serif;">Ringkasan Dashboard</h2>
-    <p class="text-muted">Selamat datang kembali, <?= session()->get('username') ?>. Berikut adalah statistik Anda hari ini.</p>
+    <p class="text-muted">Selamat datang kembali, <?= esc(session()->get('username')) ?>. Berikut adalah statistik Anda hari ini.</p>
 </div>
 
 <div class="row g-4 mb-5">
@@ -84,9 +84,36 @@
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm p-4">
             <h5 class="fw-bold mb-4">Aktivitas Terakhir</h5>
-            <div class="text-center py-5">
-                <p class="text-muted">Belum ada aktivitas baru untuk ditampilkan.</p>
-            </div>
+            <?php if(empty($recent_activity)): ?>
+                <div class="text-center py-5">
+                    <p class="text-muted">Belum ada aktivitas baru untuk ditampilkan.</p>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle">
+                        <tbody>
+                            <?php foreach($recent_activity as $item): ?>
+                            <tr>
+                                <td style="width: 50px;">
+                                    <div class="rounded-3 bg-light p-2 text-center">
+                                        <i class="fa-solid fa-file-lines text-primary"></i>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold"><?= esc($item['title']) ?></div>
+                                    <div class="text-muted small">Update: <?= date('d M Y, H:i', strtotime($item['updated_at'])) ?></div>
+                                </td>
+                                <td class="text-end">
+                                    <span class="badge bg-<?= $item['status'] === 'published' ? 'success' : 'warning' ?>-subtle text-<?= $item['status'] === 'published' ? 'success' : 'warning' ?> rounded-pill">
+                                        <?= ucfirst($item['status']) ?>
+                                    </span>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
     <div class="col-lg-4">
@@ -94,11 +121,11 @@
             <h5 class="fw-bold mb-4">Informasi Akun</h5>
             <div class="mb-3">
                 <label class="small text-muted d-block">Username</label>
-                <span class="fw-bold"><?= session()->get('username') ?></span>
+                <span class="fw-bold"><?= esc(session()->get('username')) ?></span>
             </div>
             <div class="mb-3">
                 <label class="small text-muted d-block">Role</label>
-                <span class="badge bg-primary-subtle text-primary rounded-pill"><?= ucfirst(session()->get('role')) ?></span>
+                <span class="badge bg-primary-subtle text-primary rounded-pill"><?= esc(ucfirst(session()->get('role'))) ?></span>
             </div>
         </div>
     </div>

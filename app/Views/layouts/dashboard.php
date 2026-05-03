@@ -89,6 +89,9 @@
             <a href="<?= base_url('dashboard/users') ?>" class="nav-link-dashboard <?= (url_is('dashboard/users*') ? 'active' : '') ?>">
                 <i class="fa-solid fa-users"></i> Users
             </a>
+            <a href="<?= base_url('dashboard/settings') ?>" class="nav-link-dashboard <?= (url_is('dashboard/settings*') ? 'active' : '') ?>">
+                <i class="fa-solid fa-cog"></i> Pengaturan
+            </a>
             <?php endif; ?>
 
             <div class="text-uppercase small fw-bold text-muted mt-4 mb-3 px-2">Account</div>
@@ -136,40 +139,6 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Sidebar Toggle
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebar = document.getElementById('sidebar');
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('show');
-            });
-        }
-
-        // Theme Toggle Logic
-        const themeToggle = document.getElementById('themeToggle');
-        const html = document.documentElement;
-        const themeIcon = themeToggle.querySelector('i');
-
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        html.setAttribute('data-bs-theme', savedTheme);
-        updateIcon(savedTheme);
-
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-bs-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            html.setAttribute('data-bs-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateIcon(newTheme);
-        });
-
-        function updateIcon(theme) {
-            if (theme === 'dark') {
-                themeIcon.classList.replace('fa-moon', 'fa-sun');
-            } else {
-                themeIcon.classList.replace('fa-sun', 'fa-moon');
-            }
-        }
-    </script>
+    <script src="<?= base_url('js/app.js') ?>"></script>
 </body>
 </html>

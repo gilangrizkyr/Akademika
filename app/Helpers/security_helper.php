@@ -48,26 +48,35 @@ if (! function_exists('sanitize_html')) {
 
                     // Special rules for <a>
                     if ($node->nodeName === 'a') {
-                        if ($attrLower !== 'href') {
+                        if ($attrLower !== 'href' && $attrLower !== 'title' && $attrLower !== 'target') {
                             $node->removeAttribute($attrName);
-                        } elseif (strpos($attrValue, 'javascript:') !== false) {
+                        } elseif (preg_match('/^(javascript|data|vbscript):/i', trim($attrValue))) {
                             $node->removeAttribute($attrName);
+                        } elseif ($attrLower === 'target' && $attrValue === '_blank') {
+                            $node->setAttribute('rel', 'noopener noreferrer');
+                        } elseif ($attrLower === 'target' && $attrValue !== '_blank') {
+                            $node->setAttribute('target', '_self');
                         }
                     }
 
                     // Special rules for <img>
                     if ($node->nodeName === 'img') {
-                        if ($attrLower !== 'src' && $attrLower !== 'alt') {
+                        if ($attrLower !== 'src' && $attrLower !== 'alt' && $attrLower !== 'title') {
+                            $node->removeAttribute($attrName);
+                        } elseif (preg_match('/^(javascript|data|vbscript):/i', trim($attrValue))) {
                             $node->removeAttribute($attrName);
                         }
                     }
 
                     // Special rules for <iframe>
                     if ($node->nodeName === 'iframe') {
-                        if ($attrLower !== 'src') {
+                        if ($attrLower !== 'src' && $attrLower !== 'width' && $attrLower !== 'height' && $attrLower !== 'allowfullscreen' && $attrLower !== 'title') {
                             $node->removeAttribute($attrName);
-                        } elseif (strpos($attrValue, 'youtube.com') === false && strpos($attrValue, 'youtu.be') === false) {
-                            $node->removeAttribute($attrName);
+                        } elseif ($attrLower === 'src') {
+                            // Strict YouTube Regex Bypass Prevention
+                            if (!preg_match('/^https:\/\/(www\.)?(youtube\.com\/embed\/|youtu\.be\/)/i', $attrValue)) {
+                                $node->removeAttribute($attrName);
+                            }
                         }
                     }
                 }

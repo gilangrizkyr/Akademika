@@ -7,9 +7,14 @@
         <h2 class="fw-bold" style="font-family: 'Outfit', sans-serif;">Manajemen Pengguna</h2>
         <p class="text-muted mb-0">Kelola akses dan peran pengguna dalam sistem.</p>
     </div>
-    <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addUserModal">
-        <i class="fa-solid fa-user-plus me-2"></i> Tambah Pengguna
-    </button>
+    <div class="d-flex gap-2">
+        <a href="<?= base_url('dashboard/users/backup') ?>" class="btn btn-outline-success rounded-pill px-4">
+            <i class="fa-solid fa-database me-2"></i> Backup Database
+        </a>
+        <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addUserModal">
+            <i class="fa-solid fa-user-plus me-2"></i> Tambah Pengguna
+        </button>
+    </div>
 </div>
 
 <div class="card border-0 shadow-sm overflow-hidden">

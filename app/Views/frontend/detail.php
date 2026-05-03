@@ -3,7 +3,7 @@
 <?= $this->section('content') ?>
 
 <!-- Hero Detail -->
-<section class="py-5 position-relative overflow-hidden">
+<section id="research-detail-id" data-id="<?= $research['id'] ?>" class="py-5 position-relative overflow-hidden">
     <div class="container animate-fade-in">
         <div class="row align-items-center g-5">
             <div class="col-lg-6">
@@ -25,7 +25,11 @@
                     </div>
                 </div>
                 <div class="d-flex gap-3">
-                    <button class="btn btn-primary rounded-pill px-4"><i class="fa-solid fa-bookmark me-2"></i> Simpan</button>
+                    <?php if($isBookmarked): ?>
+                        <button id="bookmark-toggle-btn" data-id="<?= $research['id'] ?>" class="btn btn-primary rounded-pill px-4"><i class="fa-solid fa-bookmark me-2"></i> Tersimpan</button>
+                    <?php else: ?>
+                        <button id="bookmark-toggle-btn" data-id="<?= $research['id'] ?>" class="btn btn-outline-primary rounded-pill px-4"><i class="fa-regular fa-bookmark me-2"></i> Simpan</button>
+                    <?php endif; ?>
                     <button class="btn btn-outline-primary rounded-pill px-4"><i class="fa-solid fa-share-nodes me-2"></i> Bagikan</button>
                 </div>
             </div>

@@ -30,6 +30,13 @@ class DashboardController extends BaseController
             $data['my_published'] = $researchModel->where('user_id', $userId)->where('status', 'published')->countAllResults();
         }
 
+        // Recent Activity
+        $recentQuery = $researchModel->orderBy('updated_at', 'DESC')->limit(5);
+        if ($role !== 'superadmin' && $role !== 'admin') {
+            $recentQuery->where('user_id', $userId);
+        }
+        $data['recent_activity'] = $recentQuery->find();
+
         return view('dashboard/index', $data);
     }
 }

@@ -10,7 +10,7 @@
         <p class="lead text-muted mb-5 mx-auto" style="max-width: 700px;">Jelajahi, pelajari, dan berkontribusi dalam dunia ilmu pengetahuan melalui platform penelitian yang interaktif dan modern.</p>
         <div class="d-flex justify-content-center gap-3">
             <a href="<?= base_url('search') ?>" class="btn btn-primary btn-lg rounded-pill px-5">Jelajahi Penelitian</a>
-            <a href="<?= base_url('login') ?>" class="btn btn-outline-primary btn-lg rounded-pill px-5">Mulai Meneliti</a>
+            <a href="<?= base_url('register') ?>" class="btn btn-outline-primary btn-lg rounded-pill px-5">Mulai Meneliti</a>
         </div>
     </div>
 </section>
@@ -59,29 +59,36 @@
         </div>
         
         <div class="row g-4">
-            <?php foreach($latest as $item): ?>
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm border-0">
-                    <img src="<?= base_url('uploads/research/' . ($item['cover_image'] ?? 'default.jpg')) ?>" class="card-img-top" alt="<?= esc($item['title']) ?>" style="height: 200px; object-fit: cover;">
-                    <div class="card-body p-4">
-                        <div class="mb-2">
-                            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 small">Technology</span>
-                        </div>
-                        <h5 class="card-title fw-bold mb-3">
-                            <a href="<?= base_url('research/' . esc($item['slug'])) ?>" class="text-decoration-none text-main"><?= esc($item['title']) ?></a>
-                        </h5>
-                        <p class="card-text text-muted small mb-4"><?= character_limiter($item['abstract'], 120) ?></p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="fa-solid fa-eye text-muted small"></i>
-                                <span class="text-muted small"><?= $item['views'] ?> views</span>
+            <?php if(empty($latest)): ?>
+                <div class="col-12 text-center py-5">
+                    <img src="<?= base_url('img/logonotfound.png') ?>" alt="Not found" style="height: 120px;" class="mb-3 opacity-50">
+                    <p class="text-muted">Belum ada penelitian terbaru.</p>
+                </div>
+            <?php else: ?>
+                <?php foreach($latest as $item): ?>
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0 animate-fade-in">
+                        <img src="<?= base_url('uploads/research/' . ($item['cover_image'] ?? 'default.jpg')) ?>" class="card-img-top" alt="<?= esc($item['title']) ?>" style="height: 200px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <div class="mb-2">
+                                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 small"><?= esc($item['category_name'] ?? 'General') ?></span>
                             </div>
-                            <span class="text-muted small"><?= date('d M Y', strtotime($item['created_at'])) ?></span>
+                            <h5 class="card-title fw-bold mb-3">
+                                <a href="<?= base_url('research/' . esc($item['slug'])) ?>" class="text-decoration-none text-main"><?= esc($item['title']) ?></a>
+                            </h5>
+                            <p class="card-text text-muted small mb-4"><?= esc(character_limiter($item['abstract'], 120)) ?></p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-eye text-muted small"></i>
+                                    <span class="text-muted small"><?= esc($item['views']) ?> views</span>
+                                </div>
+                                <span class="text-muted small"><?= date('d M Y', strtotime($item['created_at'])) ?></span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -97,29 +104,36 @@
         </div>
         
         <div class="row g-4">
-            <?php foreach($popular as $item): ?>
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm overflow-hidden h-100">
-                    <div class="row g-0 h-100">
-                        <div class="col-sm-4">
-                            <img src="<?= base_url('uploads/research/' . ($item['cover_image'] ?? 'default.jpg')) ?>" class="img-fluid h-100 w-100" style="object-fit: cover; min-height: 150px;">
-                        </div>
-                        <div class="col-sm-8">
-                            <div class="card-body p-4 h-100 d-flex flex-column justify-content-center">
-                                <h5 class="fw-bold mb-2">
-                                    <a href="<?= base_url('research/' . $item['slug']) ?>" class="text-decoration-none text-main"><?= $item['title'] ?></a>
-                                </h5>
-                                <p class="text-muted small mb-0"><?= character_limiter($item['abstract'], 100) ?></p>
-                                <div class="mt-3 d-flex align-items-center gap-3">
-                                    <span class="text-muted small"><i class="fa-solid fa-eye me-1"></i> <?= $item['views'] ?></span>
-                                    <span class="text-muted small"><i class="fa-solid fa-calendar me-1"></i> <?= date('d M Y', strtotime($item['created_at'])) ?></span>
+            <?php if(empty($popular)): ?>
+                <div class="col-12 text-center py-5">
+                    <img src="<?= base_url('img/logonotfound.png') ?>" alt="Not found" style="height: 120px;" class="mb-3 opacity-50">
+                    <p class="text-muted">Belum ada penelitian populer.</p>
+                </div>
+            <?php else: ?>
+                <?php foreach($popular as $item): ?>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm overflow-hidden h-100 animate-fade-in">
+                        <div class="row g-0 h-100">
+                            <div class="col-sm-4">
+                                <img src="<?= base_url('uploads/research/' . ($item['cover_image'] ?? 'default.jpg')) ?>" class="img-fluid h-100 w-100" style="object-fit: cover; min-height: 150px;" alt="<?= esc($item['title']) ?>">
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="card-body p-4 h-100 d-flex flex-column justify-content-center">
+                                    <h5 class="fw-bold mb-2">
+                                        <a href="<?= base_url('research/' . esc($item['slug'])) ?>" class="text-decoration-none text-main"><?= esc($item['title']) ?></a>
+                                    </h5>
+                                    <p class="text-muted small mb-0"><?= esc(character_limiter($item['abstract'], 100)) ?></p>
+                                    <div class="mt-3 d-flex align-items-center gap-3">
+                                        <span class="text-muted small"><i class="fa-solid fa-eye me-1"></i> <?= esc($item['views']) ?></span>
+                                        <span class="text-muted small"><i class="fa-solid fa-calendar me-1"></i> <?= date('d M Y', strtotime($item['created_at'])) ?></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 </section>

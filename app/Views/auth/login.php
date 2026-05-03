@@ -44,7 +44,7 @@
                     </form>
                     
                     <div class="mt-5 text-center">
-                        <p class="small text-muted mb-0">Belum punya akun? <a href="#" class="fw-bold text-decoration-none">Daftar sebagai Peneliti</a></p>
+                        <p class="small text-muted mb-0">Belum punya akun? <a href="<?= base_url('register') ?>" class="fw-bold text-decoration-none">Daftar sebagai Peneliti</a></p>
                     </div>
                 </div>
             </div>

@@ -13,8 +13,8 @@ class ThrottleFilter implements FilterInterface
     {
         $throttle = \Config\Services::throttler();
 
-        // Limit login attempts to 5 per minute from a single IP
-        if ($throttle->check($request->getIPAddress(), 5, MINUTE) === false) {
+        // Limit login attempts to 5 per minute from a single IP (MD5 hash to avoid reserved characters in IPv6)
+        if ($throttle->check(md5($request->getIPAddress()), 5, MINUTE) === false) {
             return \Config\Services::response()->setStatusCode(429)->setBody('Too Many Requests. Please wait a minute before trying again.');
         }
     }

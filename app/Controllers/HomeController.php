@@ -16,8 +16,18 @@ class HomeController extends BaseController
 
         $data = [
             'categories' => $categoryModel->findAll(),
-            'latest' => $researchModel->where('status', 'published')->orderBy('created_at', 'DESC')->limit(6)->find(),
-            'popular' => $researchModel->where('status', 'published')->orderBy('views', 'DESC')->limit(6)->find(),
+            'latest' => $researchModel->select('researches.*, categories.name as category_name')
+                                      ->join('categories', 'categories.id = researches.category_id', 'left')
+                                      ->where('status', 'published')
+                                      ->orderBy('created_at', 'DESC')
+                                      ->limit(6)
+                                      ->find(),
+            'popular' => $researchModel->select('researches.*, categories.name as category_name')
+                                       ->join('categories', 'categories.id = researches.category_id', 'left')
+                                       ->where('status', 'published')
+                                       ->orderBy('views', 'DESC')
+                                       ->limit(6)
+                                       ->find(),
         ];
 
         return view('frontend/home', $data);
@@ -34,12 +44,20 @@ class HomeController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        // Increment views
-        $researchModel->update($research['id'], ['views' => $research['views'] + 1]);
+        // View increment moved to async fetch in app.js
+
+        $bookmarkModel = new \App\Models\BookmarkModel();
+        $isBookmarked = false;
+        if (session()->get('isLoggedIn')) {
+            $isBookmarked = $bookmarkModel->where('user_id', session()->get('id'))
+                                         ->where('research_id', $research['id'])
+                                         ->first() ? true : false;
+        }
 
         $data = [
             'research' => $research,
             'sections' => $sectionModel->where('research_id', $research['id'])->orderBy('sort_order', 'ASC')->findAll(),
+            'isBookmarked' => $isBookmarked,
         ];
 
         return view('frontend/detail', $data);
@@ -60,10 +78,33 @@ class HomeController extends BaseController
 
         $data = [
             'keyword' => $keyword,
-            'researches' => $query->paginate(12),
+            'researches' => $query->select('researches.*, categories.name as category_name')
+                                 ->join('categories', 'categories.id = researches.category_id', 'left')
+                                 ->paginate(12),
             'pager' => $researchModel->pager,
         ];
 
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'status' => 'success',
+                'data' => $data['researches'],
+                'keyword' => $keyword
+            ]);
+        }
+
         return view('frontend/search', $data);
+    }
+
+    public function incrementView($id)
+    {
+        $researchModel = new ResearchModel();
+        $research = $researchModel->find($id);
+        
+        if ($research) {
+            $researchModel->update($id, ['views' => $research['views'] + 1]);
+            return $this->response->setJSON(['status' => 'success', 'new_views' => $research['views'] + 1]);
+        }
+        
+        return $this->response->setJSON(['status' => 'error'], 404);
     }
 }

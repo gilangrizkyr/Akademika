@@ -47,7 +47,7 @@
                             <?= ucfirst($item['status']) ?>
                         </span>
                     </td>
-                    <td class="py-3 text-muted"><?= $item['views'] ?></td>
+                    <td class="py-3 text-muted"><?= esc($item['views']) ?></td>
                     <td class="py-3 text-muted small"><?= date('d/m/Y', strtotime($item['created_at'])) ?></td>
                     <td class="py-3 text-end pe-4">
                         <div class="dropdown">
@@ -63,12 +63,14 @@
                                     <li><h6 class="dropdown-header">Moderasi</h6></li>
                                     <li>
                                         <form action="<?= base_url('dashboard/research/moderate/' . $item['id']) ?>" method="POST" class="d-inline">
+                                            <?= csrf_field() ?>
                                             <input type="hidden" name="status" value="published">
                                             <button type="submit" class="dropdown-item text-success"><i class="fa-solid fa-check-circle me-2"></i> Approve</button>
                                         </form>
                                     </li>
                                     <li>
                                         <form action="<?= base_url('dashboard/research/moderate/' . $item['id']) ?>" method="POST" class="d-inline">
+                                            <?= csrf_field() ?>
                                             <input type="hidden" name="status" value="rejected">
                                             <button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-times-circle me-2"></i> Reject</button>
                                         </form>

@@ -13,7 +13,43 @@ class AuthController extends BaseController
         if (session()->get('isLoggedIn')) {
             return redirect()->to('/dashboard');
         }
-        return view('auth/login');
+        return view('auth/login', ['title' => 'Login - Akademika']);
+    }
+
+    public function register()
+    {
+        if (session()->get('isLoggedIn')) {
+            return redirect()->to('/dashboard');
+        }
+        return view('auth/register', ['title' => 'Daftar Peneliti - Akademika']);
+    }
+
+    public function processRegister()
+    {
+        $rules = [
+            'username' => 'required|min_length[4]|max_length[20]|is_unique[users.username]',
+            'email'    => 'required|valid_email|is_unique[users.email]',
+            'password' => 'required|min_length[8]',
+            'password_confirm' => 'required|matches[password]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $userModel = new UserModel();
+        
+        $userModel->save([
+            'username'      => $this->request->getVar('username'),
+            'email'         => $this->request->getVar('email'),
+            'password_hash' => password_hash($this->request->getVar('password'), PASSWORD_BCRYPT),
+            'role'          => 'user',
+            'status'        => 'active',
+            'created_at'    => date('Y-m-d H:i:s'),
+            'updated_at'    => date('Y-m-d H:i:s'),
+        ]);
+
+        return redirect()->to('/login')->with('success', 'Pendaftaran berhasil! Silakan login untuk mulai meneliti.');
     }
 
     public function process()

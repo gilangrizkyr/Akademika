@@ -12,7 +12,7 @@
                     <span class="input-group-text bg-transparent border-0 ps-4">
                         <i class="fa-solid fa-magnifying-glass text-muted"></i>
                     </span>
-                    <input type="text" name="q" class="form-control bg-transparent border-0 py-3" placeholder="Cari judul, abstrak, atau konten..." value="<?= esc($keyword) ?>">
+                    <input type="text" id="live-search-input" name="q" class="form-control bg-transparent border-0 py-3" placeholder="Cari judul, abstrak, atau konten..." value="<?= esc($keyword) ?>">
                     <button class="btn btn-primary rounded-pill px-4" type="submit">Cari</button>
                 </div>
             </form>
@@ -22,19 +22,22 @@
         </div>
 
         <!-- Results -->
-        <div class="row g-4">
+        <div id="search-results-container" class="row g-4">
             <?php if(count($researches) > 0): ?>
                 <?php foreach($researches as $item): ?>
                 <div class="col-md-4">
                     <div class="card h-100 shadow-sm border-0 animate-fade-in">
-                        <img src="<?= base_url('uploads/research/' . ($item['cover_image'] ?? 'default.jpg')) ?>" class="card-img-top" alt="<?= $item['title'] ?>" style="height: 200px; object-fit: cover;">
+                        <img src="<?= base_url('uploads/research/' . ($item['cover_image'] ?? 'default.jpg')) ?>" class="card-img-top" alt="<?= esc($item['title']) ?>" style="height: 200px; object-fit: cover;">
                         <div class="card-body p-4">
+                            <div class="mb-2">
+                                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 small"><?= esc($item['category_name'] ?? 'General') ?></span>
+                            </div>
                             <h5 class="card-title fw-bold mb-3">
-                                <a href="<?= base_url('research/' . $item['slug']) ?>" class="text-decoration-none text-main"><?= $item['title'] ?></a>
+                                <a href="<?= base_url('research/' . esc($item['slug'])) ?>" class="text-decoration-none text-main"><?= esc($item['title']) ?></a>
                             </h5>
-                            <p class="card-text text-muted small mb-4"><?= character_limiter($item['abstract'], 120) ?></p>
+                            <p class="card-text text-muted small mb-4"><?= esc(character_limiter($item['abstract'], 120)) ?></p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-muted small"><i class="fa-solid fa-eye me-1"></i> <?= $item['views'] ?></span>
+                                <span class="text-muted small"><i class="fa-solid fa-eye me-1"></i> <?= esc($item['views']) ?></span>
                                 <span class="text-muted small"><?= date('d M Y', strtotime($item['created_at'])) ?></span>
                             </div>
                         </div>
@@ -43,7 +46,7 @@
                 <?php endforeach; ?>
             <?php else: ?>
                 <div class="col-12 text-center py-5">
-                    <img src="https://illustrations.popsy.co/blue/searching.svg" alt="Not found" style="height: 200px;" class="mb-4">
+                    <img src="<?= base_url('img/logonotfound.png') ?>" alt="Not found" style="height: 200px;" class="mb-4">
                     <h3 class="fw-bold">Tidak ada hasil ditemukan</h3>
                     <p class="text-muted">Coba kata kunci lain atau jelajahi kategori kami.</p>
                 </div>

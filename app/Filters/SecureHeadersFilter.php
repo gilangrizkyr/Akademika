@@ -21,14 +21,16 @@ class SecureHeadersFilter implements FilterInterface
         
         // Strict CSP: Allow scripts from own domain/CDN, iframes from YouTube
         $csp = "default-src 'self'; ";
-        $csp .= "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; ";
+        $csp .= "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; ";
         $csp .= "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; ";
         $csp .= "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; ";
-        $csp .= "img-src 'self' data: https:; ";
+        $csp .= "img-src 'self' data: https://www.youtube.com https://i.ytimg.com; ";
         $csp .= "frame-src 'self' https://www.youtube.com https://youtu.be; ";
-        $csp .= "connect-src 'self';";
+        $csp .= "connect-src 'self' https://cdn.jsdelivr.net;";
         
         $response->setHeader('Content-Security-Policy', $csp);
+        $response->setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+        $response->setHeader('Permissions-Policy', 'geolocation=(), camera=(), microphone=()');
 
         return $response;
     }
