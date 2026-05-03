@@ -93,6 +93,7 @@ class AuthController extends BaseController
 
             // Regenerate session for security
             session()->regenerate();
+            log_activity('login', 'User logged in successfully');
 
             return redirect()->to('/dashboard');
         }

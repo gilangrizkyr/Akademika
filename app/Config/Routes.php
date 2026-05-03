@@ -9,9 +9,9 @@ use CodeIgniter\Router\RouteCollection;
 // Public Routes
 $routes->get('/', 'HomeController::index');
 $routes->get('research/(:segment)', 'HomeController::detail/$1');
-$routes->get('search', 'HomeController::search', ['filter' => 'throttle']);
-$routes->post('api/research/view/(:num)', 'HomeController::incrementView/$1');
-$routes->post('api/bookmark/toggle/(:num)', 'BookmarkController::toggle/$1');
+$routes->get('search', 'HomeController::search', ['filter' => 'throttle:10']);
+$routes->post('api/research/view/(:num)', 'HomeController::incrementView/$1', ['filter' => 'throttle:30']);
+$routes->post('api/bookmark/toggle/(:num)', 'BookmarkController::toggle/$1', ['filter' => 'throttle:20']);
 
 // Auth Routes
 $routes->get('login', 'AuthController::login', ['filter' => 'throttle']);
@@ -46,10 +46,29 @@ $routes->group('dashboard', ['filter' => 'auth'], function($routes) {
         $routes->post('update/(:num)', 'UserManagementController::update/$1');
         $routes->get('delete/(:num)', 'UserManagementController::delete/$1');
         $routes->get('backup', 'BackupController::index');
-        $routes->get('settings', 'SettingsController::index');
-        $routes->post('settings/update', 'SettingsController::update');
+    });
+
+    // Category & Tag Management (Superadmin & Admin)
+    $routes->group('categories', ['filter' => 'role:superadmin,admin'], function($routes) {
+        $routes->get('/', 'CategoryController::index');
+        $routes->post('store', 'CategoryController::store');
+        $routes->post('update/(:num)', 'CategoryController::update/$1');
+        $routes->get('delete/(:num)', 'CategoryController::delete/$1');
+    });
+
+    $routes->group('tags', ['filter' => 'role:superadmin,admin'], function($routes) {
+        $routes->get('/', 'TagController::index');
+        $routes->post('store', 'TagController::store');
+        $routes->post('update/(:num)', 'TagController::update/$1');
+        $routes->get('delete/(:num)', 'TagController::delete/$1');
     });
 
     // Bookmark Action
     $routes->post('bookmark/toggle/(:num)', 'BookmarkController::toggle/$1');
+
+    // Website Settings (Superadmin only)
+    $routes->group('settings', ['filter' => 'role:superadmin'], function($routes) {
+        $routes->get('/', 'SettingsController::index');
+        $routes->post('update', 'SettingsController::update');
+    });
 });

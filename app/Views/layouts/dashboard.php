@@ -84,8 +84,18 @@
                 <i class="fa-solid fa-microscope"></i> Penelitian
             </a>
 
+            <?php if(in_array(session()->get('role'), ['superadmin', 'admin'])): ?>
+            <div class="text-uppercase small fw-bold text-muted mt-4 mb-3 px-2">Data & Moderasi</div>
+            <a href="<?= base_url('dashboard/categories') ?>" class="nav-link-dashboard <?= (url_is('dashboard/categories*') ? 'active' : '') ?>">
+                <i class="fa-solid fa-tags"></i> Kategori
+            </a>
+            <a href="<?= base_url('dashboard/tags') ?>" class="nav-link-dashboard <?= (url_is('dashboard/tags*') ? 'active' : '') ?>">
+                <i class="fa-solid fa-hashtag"></i> Tags
+            </a>
+            <?php endif; ?>
+
             <?php if(session()->get('role') === 'superadmin'): ?>
-            <div class="text-uppercase small fw-bold text-muted mt-4 mb-3 px-2">Admin</div>
+            <div class="text-uppercase small fw-bold text-muted mt-4 mb-3 px-2">Sistem</div>
             <a href="<?= base_url('dashboard/users') ?>" class="nav-link-dashboard <?= (url_is('dashboard/users*') ? 'active' : '') ?>">
                 <i class="fa-solid fa-users"></i> Users
             </a>

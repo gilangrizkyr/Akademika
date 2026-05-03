@@ -78,6 +78,8 @@ class ResearchController extends BaseController
             'status' => 'pending', // default to pending for moderation
         ]);
 
+        log_activity('create_research', "Created research: $title");
+
         return redirect()->to('/dashboard/research')->with('success', 'Research submitted successfully. Waiting for moderation.');
     }
 
@@ -86,8 +88,8 @@ class ResearchController extends BaseController
         $research = $this->researchModel->find($id);
         if (!$research) throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
 
-        // Check permission
-        if (session()->get('role') !== 'superadmin' && $research['user_id'] != session()->get('id')) {
+        // Check permission: Superadmin and Admin can edit all, others only their own
+        if (!in_array(session()->get('role'), ['superadmin', 'admin']) && $research['user_id'] != session()->get('id')) {
             return redirect()->to('/dashboard/research')->with('error', 'Unauthorized access.');
         }
 
@@ -104,7 +106,8 @@ class ResearchController extends BaseController
         $research = $this->researchModel->find($id);
         if (!$research) throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
 
-        if (session()->get('role') !== 'superadmin' && $research['user_id'] != session()->get('id')) {
+        // Check permission: Superadmin and Admin can edit all, others only their own
+        if (!in_array(session()->get('role'), ['superadmin', 'admin']) && $research['user_id'] != session()->get('id')) {
             return redirect()->to('/dashboard/research')->with('error', 'Unauthorized access.');
         }
 
@@ -141,7 +144,7 @@ class ResearchController extends BaseController
         }
 
         $this->researchModel->save($data);
-
+        log_activity('update_research', "Updated research ID: $id");
         return redirect()->to('/dashboard/research')->with('success', 'Research updated successfully.');
     }
 
@@ -150,11 +153,13 @@ class ResearchController extends BaseController
         $research = $this->researchModel->find($id);
         if (!$research) throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
 
-        if (session()->get('role') !== 'superadmin' && $research['user_id'] != session()->get('id')) {
+        // Check permission: Superadmin and Admin can delete all, others only their own
+        if (!in_array(session()->get('role'), ['superadmin', 'admin']) && $research['user_id'] != session()->get('id')) {
             return redirect()->to('/dashboard/research')->with('error', 'Unauthorized access.');
         }
 
         $this->researchModel->delete($id);
+        log_activity('delete_research', "Deleted research ID: $id");
         return redirect()->to('/dashboard/research')->with('success', 'Research deleted successfully.');
     }
 

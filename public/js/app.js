@@ -4,26 +4,67 @@ const config = {
     baseUrl: document.querySelector('meta[name="base-url"]')?.content
 };
 
+// 1. NOTIFICATION SYSTEM (Toast)
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast-custom toast-${type}`;
+    
+    const icon = type === 'success' ? 'fa-circle-check' : (type === 'error' ? 'fa-circle-xmark' : 'fa-circle-info');
+    
+    toast.innerHTML = `
+        <i class="fa-solid ${icon}"></i>
+        <div class="toast-content">${message}</div>
+    `;
+
+    container.appendChild(toast);
+    
+    // Trigger animation
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    // Auto remove
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+    }, 4000);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. ASYNC VIEW INCREMENT
+    // 2. OPTIMIZED ASYNC VIEW INCREMENT (Avoid Double Count)
     const researchDetail = document.getElementById('research-detail-id');
     if (researchDetail) {
         const id = researchDetail.dataset.id;
-        fetch(`${config.baseUrl}/api/research/view/${id}`, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': config.csrf
-            }
-        });
+        const storageKey = `viewed_res_${id}`;
+        
+        // Only count if not viewed in last 24h
+        const lastViewed = localStorage.getItem(storageKey);
+        const now = new Date().getTime();
+        
+        if (!lastViewed || (now - lastViewed > 24 * 60 * 60 * 1000)) {
+            fetch(`${config.baseUrl}/api/research/view/${id}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': config.csrf
+                }
+            }).then(response => {
+                if (response.ok) {
+                    localStorage.setItem(storageKey, now.toString());
+                }
+            }).catch(err => console.error('View increment error:', err));
+        }
     }
 
-    // 2. BOOKMARK TOGGLE
+    // 3. BOOKMARK TOGGLE (with Toast & Error Handling)
     const bookmarkBtn = document.getElementById('bookmark-toggle-btn');
     if (bookmarkBtn) {
         bookmarkBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             const id = bookmarkBtn.dataset.id;
+            
+            bookmarkBtn.disabled = true; // Prevent double clicks
             
             try {
                 const response = await fetch(`${config.baseUrl}/api/bookmark/toggle/${id}`, {
@@ -33,6 +74,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         'X-CSRF-TOKEN': config.csrf
                     }
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const result = await response.json();
                 
                 if (result.status === 'success') {
@@ -41,70 +87,89 @@ document.addEventListener('DOMContentLoaded', () => {
                         icon.classList.replace('fa-regular', 'fa-solid');
                         bookmarkBtn.classList.replace('btn-outline-primary', 'btn-primary');
                         bookmarkBtn.innerHTML = '<i class="fa-solid fa-bookmark me-2"></i> Tersimpan';
+                        showToast(result.message, 'success');
                     } else {
                         icon.classList.replace('fa-solid', 'fa-regular');
                         bookmarkBtn.classList.replace('btn-primary', 'btn-outline-primary');
                         bookmarkBtn.innerHTML = '<i class="fa-regular fa-bookmark me-2"></i> Simpan';
+                        showToast(result.message, 'info');
                     }
-                } else if (result.message) {
-                    alert(result.message);
+                } else {
+                    showToast(result.message || 'Terjadi kesalahan.', 'error');
                 }
             } catch (err) {
                 console.error('Bookmark error:', err);
+                showToast('Gagal memproses bookmark. Periksa koneksi Anda.', 'error');
+            } finally {
+                bookmarkBtn.disabled = false;
             }
         });
     }
 
-    // 3. LIVE SEARCH
+    // 4. LIVE SEARCH (with Debounce & Error Handling)
     const searchInput = document.getElementById('live-search-input');
     const searchResults = document.getElementById('search-results-container');
     
     if (searchInput && searchResults) {
-        let timeout = null;
+        let debounceTimeout = null;
         searchInput.addEventListener('input', (e) => {
-            clearTimeout(timeout);
-            timeout = setTimeout(async () => {
-                const q = e.target.value;
+            clearTimeout(debounceTimeout);
+            const q = e.target.value.trim();
+            
+            if (q.length === 0) {
+                // Optionally clear or show default
+                return;
+            }
+
+            debounceTimeout = setTimeout(async () => {
                 if (q.length < 2) return;
 
-                const response = await fetch(`${config.baseUrl}/search?q=${encodeURIComponent(q)}`, {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                });
-                const result = await response.json();
-                
-                if (result.status === 'success') {
-                    searchResults.innerHTML = '';
-                    if (result.data.length === 0) {
-                        searchResults.innerHTML = `
-                            <div class="col-12 text-center py-5">
-                                <img src="${config.baseUrl}/img/logonotfound.png" alt="Not found" style="height: 150px;" class="mb-4">
-                                <h3 class="fw-bold">Tidak ada hasil ditemukan</h3>
-                            </div>
-                        `;
-                    } else {
-                        result.data.forEach(item => {
-                            searchResults.innerHTML += `
-                                <div class="col-md-4">
-                                    <div class="card h-100 shadow-sm border-0 animate-fade-in">
-                                        <img src="${config.baseUrl}/uploads/research/${item.cover_image || 'default.jpg'}" class="card-img-top" style="height: 200px; object-fit: cover;">
-                                        <div class="card-body p-4">
-                                            <div class="mb-2">
-                                                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 small">${item.category_name || 'General'}</span>
-                                            </div>
-                                            <h5 class="card-title fw-bold mb-3">
-                                                <a href="${config.baseUrl}/research/${item.slug}" class="text-decoration-none text-main">${item.title}</a>
-                                            </h5>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="text-muted small"><i class="fa-solid fa-eye me-1"></i> ${item.views}</span>
+                try {
+                    const response = await fetch(`${config.baseUrl}/search?q=${encodeURIComponent(q)}`, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    
+                    if (!response.ok) throw new Error('Search failed');
+                    
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        searchResults.innerHTML = '';
+                        if (result.data.length === 0) {
+                            searchResults.innerHTML = `
+                                <div class="col-12 text-center py-5">
+                                    <img src="${config.baseUrl}/img/logonotfound.png" alt="Not found" style="height: 150px;" class="mb-4">
+                                    <h3 class="fw-bold">Tidak ada hasil ditemukan</h3>
+                                </div>
+                            `;
+                        } else {
+                            result.data.forEach(item => {
+                                searchResults.innerHTML += `
+                                    <div class="col-md-4">
+                                        <div class="card h-100 shadow-sm border-0 animate-fade-in">
+                                            <img src="${config.baseUrl}/uploads/research/${item.cover_image || 'default.jpg'}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                            <div class="card-body p-4">
+                                                <div class="mb-2">
+                                                    <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 small">${item.category_name || 'General'}</span>
+                                                </div>
+                                                <h5 class="card-title fw-bold mb-3">
+                                                    <a href="${config.baseUrl}/research/${item.slug}" class="text-decoration-none text-main">${item.title}</a>
+                                                </h5>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="text-muted small"><i class="fa-solid fa-eye me-1"></i> ${item.views}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            `;
-                        });
+                                `;
+                            });
+                        }
                     }
+                } catch (err) {
+                    console.error('Search error:', err);
+                    // Don't show toast for live search to avoid annoyance, just log
                 }
-            }, 300);
+            }, 500); // Debounce 500ms
         });
     }
 
@@ -112,14 +177,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
         const html = document.documentElement;
-        const icon = themeToggle.querySelector('i');
+        const themeIcon = themeToggle.querySelector('i');
 
         const updateIcon = (theme) => {
-            if (icon) {
+            if (themeIcon) {
                 if (theme === 'dark') {
-                    icon.classList.replace('fa-moon', 'fa-sun');
+                    themeIcon.classList.replace('fa-moon', 'fa-sun');
                 } else {
-                    icon.classList.replace('fa-sun', 'fa-moon');
+                    themeIcon.classList.replace('fa-sun', 'fa-moon');
                 }
             }
         };
@@ -157,4 +222,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // 5. BACK TO TOP BUTTON
+    const backToTop = document.getElementById('backToTop');
+    if (backToTop) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
 });

@@ -28,6 +28,12 @@ class HomeController extends BaseController
                                        ->orderBy('views', 'DESC')
                                        ->limit(6)
                                        ->find(),
+            'stats' => [
+                'research' => $researchModel->where('status', 'published')->countAllResults(),
+                'views' => $researchModel->selectSum('views')->get()->getRow()->views ?? 0,
+                'categories' => $categoryModel->countAllResults(),
+                'researchers' => (new \App\Models\UserModel())->countAllResults(),
+            ]
         ];
 
         return view('frontend/home', $data);
@@ -38,14 +44,17 @@ class HomeController extends BaseController
         $researchModel = new ResearchModel();
         $sectionModel = new SectionModel();
 
-        $research = $researchModel->where('slug', $slug)->where('status', 'published')->first();
+        $research = $researchModel->select('researches.*, categories.name as category_name')
+                                  ->join('categories', 'categories.id = researches.category_id', 'left')
+                                  ->where('researches.slug', $slug)
+                                  ->where('researches.status', 'published')
+                                  ->first();
         
         if (!$research) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        // View increment moved to async fetch in app.js
-
+        // Bookmark check
         $bookmarkModel = new \App\Models\BookmarkModel();
         $isBookmarked = false;
         if (session()->get('isLoggedIn')) {
@@ -54,10 +63,42 @@ class HomeController extends BaseController
                                          ->first() ? true : false;
         }
 
+        // Related content (same category)
+        $related = $researchModel->where('category_id', $research['category_id'])
+                                 ->where('id !=', $research['id'])
+                                 ->where('status', 'published')
+                                 ->limit(3)
+                                 ->find();
+
+        // SEO & Schema
         $data = [
+            'title' => $research['title'] . ' - Akademika',
+            'meta_description' => character_limiter(strip_tags($research['abstract']), 160),
+            'meta_image' => base_url('uploads/research/' . ($research['cover_image'] ?? 'default.jpg')),
             'research' => $research,
             'sections' => $sectionModel->where('research_id', $research['id'])->orderBy('sort_order', 'ASC')->findAll(),
             'isBookmarked' => $isBookmarked,
+            'related' => $related,
+            'schema' => [
+                '@context' => 'https://schema.org',
+                '@type' => 'ScholarlyArticle',
+                'headline' => $research['title'],
+                'description' => strip_tags($research['abstract']),
+                'author' => [
+                    '@type' => 'Person',
+                    'name' => 'Peneliti Akademika'
+                ],
+                'datePublished' => $research['created_at'],
+                'image' => base_url('uploads/research/' . ($research['cover_image'] ?? 'default.jpg')),
+                'publisher' => [
+                    '@type' => 'Organization',
+                    'name' => 'Akademika',
+                    'logo' => [
+                        '@type' => 'ImageObject',
+                        'url' => base_url('favicon.ico')
+                    ]
+                ]
+            ]
         ];
 
         return view('frontend/detail', $data);
@@ -67,6 +108,11 @@ class HomeController extends BaseController
     {
         $researchModel = new ResearchModel();
         $keyword = $this->request->getVar('q');
+        
+        // Validation: Limit length and sanitize
+        if ($keyword) {
+            $keyword = strip_tags(substr($keyword, 0, 100));
+        }
 
         $query = $researchModel->where('status', 'published');
         if ($keyword) {
@@ -97,6 +143,10 @@ class HomeController extends BaseController
 
     public function incrementView($id)
     {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(403);
+        }
+
         $researchModel = new ResearchModel();
         $research = $researchModel->find($id);
         

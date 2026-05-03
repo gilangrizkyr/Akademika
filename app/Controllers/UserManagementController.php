@@ -32,6 +32,10 @@ class UserManagementController extends BaseController
 
     public function store()
     {
+        if (session()->get('role') !== 'superadmin') {
+            return redirect()->to('/dashboard')->with('error', 'Unauthorized access.');
+        }
+
         $rules = [
             'username' => 'required|is_unique[users.username]|min_length[3]',
             'email' => 'required|valid_email|is_unique[users.email]',
@@ -56,6 +60,10 @@ class UserManagementController extends BaseController
 
     public function update($id)
     {
+        if (session()->get('role') !== 'superadmin') {
+            return redirect()->to('/dashboard')->with('error', 'Unauthorized access.');
+        }
+
         $user = $this->userModel->find($id);
         if (!$user) throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
 
@@ -89,6 +97,10 @@ class UserManagementController extends BaseController
 
     public function delete($id)
     {
+        if (session()->get('role') !== 'superadmin') {
+            return redirect()->to('/dashboard')->with('error', 'Unauthorized access.');
+        }
+
         $user = $this->userModel->find($id);
         if (!$user) throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
 

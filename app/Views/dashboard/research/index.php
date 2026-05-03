@@ -4,11 +4,11 @@
 
 <div class="d-flex justify-content-between align-items-center mb-5">
     <div>
-        <h2 class="fw-bold" style="font-family: 'Outfit', sans-serif;">Daftar Penelitian</h2>
-        <p class="text-muted mb-0">Kelola semua karya penelitian Anda di sini.</p>
+        <h2 class="fw-bold" style="font-family: 'Outfit', sans-serif;">Manajemen Penelitian</h2>
+        <p class="text-muted mb-0">Kelola dan publikasikan karya ilmiah Anda.</p>
     </div>
     <a href="<?= base_url('dashboard/research/create') ?>" class="btn btn-primary rounded-pill px-4">
-        <i class="fa-solid fa-plus me-2"></i> Buat Penelitian Baru
+        <i class="fa-solid fa-plus me-2"></i> Tambah Penelitian
     </a>
 </div>
 
@@ -28,20 +28,14 @@
                 <?php foreach($researches as $item): ?>
                 <tr>
                     <td class="ps-4 py-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <img src="<?= base_url('uploads/research/' . ($item['cover_image'] ?? 'default.jpg')) ?>" class="rounded-3" style="width: 50px; height: 50px; object-fit: cover;">
-                            <div>
-                                <div class="fw-bold text-main"><?= esc(character_limiter($item['title'], 40)) ?></div>
-                                <div class="text-muted small">ID: #<?= esc($item['id']) ?></div>
-                            </div>
-                        </div>
+                        <div class="fw-bold text-main"><?= esc($item['title']) ?></div>
+                        <div class="text-muted small"><?= esc($item['slug']) ?></div>
                     </td>
                     <td class="py-3">
                         <?php 
-                        $badge = 'bg-secondary';
-                        if($item['status'] === 'published') $badge = 'bg-success';
-                        if($item['status'] === 'pending') $badge = 'bg-warning';
-                        if($item['status'] === 'rejected') $badge = 'bg-danger';
+                            $badge = 'bg-warning';
+                            if($item['status'] === 'published') $badge = 'bg-success';
+                            if($item['status'] === 'rejected') $badge = 'bg-danger';
                         ?>
                         <span class="badge <?= $badge ?> bg-opacity-10 text-<?= str_replace('bg-', '', $badge) ?> rounded-pill px-3 py-2">
                             <?= ucfirst($item['status']) ?>
@@ -81,6 +75,16 @@
                     </td>
                 </tr>
                 <?php endforeach; ?>
+
+                <?php if(empty($researches)): ?>
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <img src="<?= base_url('img/logonotfound.png') ?>" alt="Empty" style="height: 120px;" class="mb-3 opacity-50">
+                        <p class="text-muted">Belum ada data penelitian.</p>
+                        <a href="<?= base_url('dashboard/research/create') ?>" class="btn btn-primary rounded-pill px-4">Buat Sekarang</a>
+                    </td>
+                </tr>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>

@@ -17,6 +17,28 @@
     </div>
 </div>
 
+<?php if(session()->getFlashdata('success')): ?>
+    <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4">
+        <i class="fa-solid fa-circle-check me-2"></i> <?= session()->getFlashdata('success') ?>
+    </div>
+<?php endif; ?>
+
+<?php if(session()->getFlashdata('error')): ?>
+    <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i> <?= session()->getFlashdata('error') ?>
+    </div>
+<?php endif; ?>
+
+<?php if(session()->get('errors')): ?>
+    <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">
+        <ul class="mb-0">
+        <?php foreach(session()->get('errors') as $error): ?>
+            <li><?= esc($error) ?></li>
+        <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
+
 <div class="card border-0 shadow-sm overflow-hidden">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">

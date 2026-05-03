@@ -14,18 +14,9 @@ class CategoryModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = ['name', 'slug'];
 
-    protected bool $allowEmptyInserts = false;
-    protected bool $updateOnlyChanged = true;
-
     // Dates
     protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
-
-    // Validation
-    protected $validationRules      = [
-        'name' => 'required|max_length[100]',
-        'slug' => 'required|is_unique[categories.slug,id,{id}]|max_length[100]',
-    ];
 }
